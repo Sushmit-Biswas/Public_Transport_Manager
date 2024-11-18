@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Iinclude -Wall
-SRC = src/main.c src/routes.c src/schedule.c src/auth.c
+SRC = src/main.c src/routes.c src/schedule.c src/auth.c src/booking.c
 OBJ = $(SRC:.c=.o)
 BIN = bin/transport
 

@@ -10,7 +10,7 @@ Fork the repository to your own GitHub account.
 ### 2. Clone the Repository
 Clone the forked repository to your local machine.
 ```bash
-git clone https://github.com/your-username/Public_Transport_Manager.git
+git clone https://github.com/your-username/transport-system.git
 ```
 
 ### 3. Create a New Branch

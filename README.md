@@ -9,7 +9,7 @@ Welcome to the Public Transport Route and Schedule Management System! This proje
 - [Contributing](#contributing)
 - [License](#license)
 
-## 🚀 Compiling and Running on Linux/Unix based Systems
+## 🚀 Compiling and Running
 
 Follow these steps to compile and run the project:
 
@@ -28,7 +28,7 @@ bin/transport
 make clean
 ```
 
-## 🛠️ Current Features (Please add more features)
+## 🛠️ Features
 
 - **Route Management**: Add, modify, and delete routes.
 - **Schedule Management**: Add, modify, and delete schedules.
