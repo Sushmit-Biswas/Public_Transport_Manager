@@ -30,10 +30,27 @@ make clean
 
 ## 🛠️ Features
 
-- **Route Management**: Add, modify, and delete routes.
-- **Schedule Management**: Add, modify, and delete schedules.
-- **Display Routes**: View all routes and their details.
-- **Display Schedules**: View all schedules and their details.
+### Admin Features
+- **Route Management**: Add and delete routes
+- **Schedule Management**: Add and delete schedules for routes
+- **Display Routes**: View all available routes
+- **Display Schedules**: View all schedules
+- **Update Trip Fares**: Update fares for trips
+- **Create Admin Accounts**: Create new admin accounts
+- **View Bookings**: View all client bookings
+- **View Admin Logs**: View logs of admin activities
+
+### Client Features
+- **Route Display**: View all available routes
+- **Route Filtering**: Filter routes by location and vehicle type (AC/Non-AC Bus/Taxi)
+- **Schedule Display**: View schedules for routes
+- **Trip Management**: Book and cancel trips
+- **Booking History**: View personal booking history
+
+### General Features
+- **Authentication**: Login system for admins and clients
+- **Activity Logging**: Logging of admin actions for auditing
+- **User Interface**: User-friendly interface with ANSI color formatting
 
 ## 🤝 Contributing
 
