@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "routes.h"
 #include "schedule.h"
 #include "auth.h"
 #include "booking.h"
-
 // ANSI color codes
 #define RESET   "\x1B[0m"
 #define RED     "\x1B[31m"
@@ -15,10 +15,76 @@
 #define CYAN    "\x1B[36m"
 #define WHITE   "\x1B[37m"
 #define BOLD    "\x1B[1m"
+#define BRIGHT_YELLOW "\x1B[93m"
+#define BRIGHT_BLUE "\x1B[94m"
 
 // Global variable for current user
 char* current_user = NULL;
 int is_admin = 0;
+
+// Function to display admin logs
+void view_admin_logs() {
+    FILE* logfile = fopen("admin_logs.txt", "r");
+    if (logfile == NULL) {
+        printf("%s%sError opening log file!%s\n", BOLD, RED, RESET);
+        return;
+    }
+
+    printf("\n%s%sAdmin Activity Logs:%s\n", BOLD, YELLOW, RESET);
+    printf("%s╔══════════════════════════╦══════════════════╦═══════════════════════════╗%s\n", BOLD, RESET);
+    printf("%s║ %-24s ║ %-16s ║ %-25s ║%s\n", BOLD, "Timestamp", "Admin", "Action", RESET);
+    printf("%s╠══════════════════════════╬══════════════════╬═══════════════════════════╣%s\n", BOLD, RESET);
+
+    char line[256];
+    int found = 0;
+    while (fgets(line, sizeof(line), logfile)) {
+        char timestamp[50], admin[50], action[100];
+        // Parse the log line [timestamp] Admin: admin_name | Action: action_desc
+        char *start = strchr(line, '[') + 1;
+        char *end = strchr(line, ']');
+        strncpy(timestamp, start, end - start);
+        timestamp[end - start] = '\0';
+
+        start = strstr(line, "Admin: ") + 7;
+        end = strstr(line, " | Action: ");
+        strncpy(admin, start, end - start);
+        admin[end - start] = '\0';
+
+        start = strstr(line, "Action: ") + 8;
+        strcpy(action, start);
+        action[strlen(action)-1] = '\0';  // Remove newline
+
+        printf("║ %-24s ║ %-16s ║ %-25s ║\n", timestamp, admin, action);
+        found = 1;
+    }
+
+    if (!found) {
+        printf("║ %s%-69s%s ║\n", BOLD, "No admin logs found", RESET);
+    }
+
+    printf("%s╚══════════════════════════╩══════════════════╩═══════════════════════════╝%s\n", BOLD, RESET);
+    fclose(logfile);
+}
+
+// Function to log admin actions
+void log_admin_action(const char* username, const char* action) {
+    FILE* logfile = fopen("admin_logs.txt", "a");
+    if (logfile == NULL) {
+        printf("%s%sError opening log file!%s\n", BOLD, RED, RESET);
+        return;
+    }
+
+    time_t now;
+    time(&now);
+    struct tm *local_time = localtime(&now);
+    char date[50];
+    strftime(date, sizeof(date), "%a %b %d %H:%M:%S %Y", local_time);
+
+    // Use the actual username instead of "Unknown" if available
+    const char* admin_name = username && strlen(username) > 0 ? username : "Unknown";
+    fprintf(logfile, "[%s] Admin: %s | Action: %s\n", date, admin_name, action);
+    fclose(logfile);
+}
 
 void print_header(const char* title) {
     printf("\n%s%s", BOLD, BLUE);
@@ -37,19 +103,51 @@ void display_admin_menu() {
     printf("%s%s[6]%s Display Schedules\n", BOLD, CYAN, RESET);
     printf("%s%s[7]%s Update Trip Fares\n", BOLD, YELLOW, RESET);
     printf("%s%s[8]%s Create New Admin Account\n", BOLD, MAGENTA, RESET);
-    printf("%s%s[9]%s Logout\n", BOLD, RED, RESET);
+    printf("%s%s[9]%s View All Bookings\n", BOLD, BRIGHT_YELLOW, RESET);
+    printf("%s%s[10]%s View Admin Logs\n", BOLD, BRIGHT_BLUE, RESET);
+    printf("%s%s[0]%s Logout\n", BOLD, RED, RESET);
 }
 
 void display_client_menu() {
     print_header("Bengaluru Public Transport Management System (Client)");
     printf("\n%s%s[1]%s Display All Routes\n", BOLD, CYAN, RESET);
     printf("%s%s[2]%s Filter Routes by Location\n", BOLD, YELLOW, RESET);
-    printf("%s%s[3]%s Filter Routes by Vehicle Type\n", BOLD, YELLOW, RESET);
+    printf("%s%s[3]%s Filter Routes by Vehicle Type\n", BOLD, BRIGHT_BLUE, RESET);
     printf("%s%s[4]%s Display Schedules\n", BOLD, CYAN, RESET);
     printf("%s%s[5]%s Book Trip\n", BOLD, GREEN, RESET);
     printf("%s%s[6]%s Cancel Trip\n", BOLD, RED, RESET);
     printf("%s%s[7]%s View My Bookings\n", BOLD, MAGENTA, RESET);
-    printf("%s%s[8]%s Logout\n", BOLD, RED, RESET);
+    printf("%s%s[0]%s Logout\n", BOLD, RED, RESET);
+}
+
+void view_all_bookings() {
+    printf("\n%s%sAll Bookings:%s\n", BOLD, YELLOW, RESET);
+    printf("%s╔═════╦══════════════════╦═══════╦══════════╦═══════╦═══════╦══════════╗%s\n", BOLD, RESET);
+    printf("%s║ ID  ║ Client Name      ║ Route ║ Schedule ║ Seats ║ Taxis ║ Fare(₹)  ║%s\n", BOLD, RESET);
+    printf("%s╠═════╬══════════════════╬═══════╬══════════╬═══════╬═══════╬══════════╣%s\n", BOLD, RESET);
+
+    load_bookings_from_file();
+    int found = 0;
+    for (int i = 0; i < booking_count; i++) {
+        if (bookings[i].is_active) {
+            printf("║ %-3d ║ %-16s ║ %-5d ║ %-8d ║ %-5d ║ %-5d ║ ₹%-7.2f ║\n",
+                bookings[i].id,
+                bookings[i].username,
+                bookings[i].route_id,
+                bookings[i].schedule_id,
+                bookings[i].num_seats,
+                bookings[i].num_taxis,
+                bookings[i].total_fare);
+            found = 1;
+        }
+    }
+
+    if (!found) {
+        printf("║ %s%-73s%s ║\n", BOLD, "No bookings found", RESET);
+    }
+
+    printf("%s╚═════╩══════════════════╩═══════╩══════════╩═══════╩═══════╩══════════╝%s\n", BOLD, RESET);
+    log_admin_action(current_user, "Viewed all bookings");
 }
 
 void filter_routes_by_location() {
@@ -176,30 +274,46 @@ int main() {
             switch (choice) {
                 case 1:
                     add_route(1);
+                    log_admin_action(current_user, "Added new route");
                     break;
                 case 2:
                     delete_route(1);
+                    log_admin_action(current_user, "Deleted route");
                     break;
                 case 3:
                     display_routes();
+                    log_admin_action(current_user, "Viewed all routes");
                     break;
                 case 4:
                     add_schedule(current_user);
+                    log_admin_action(current_user, "Added new schedule");
                     break;
                 case 5:
                     delete_schedule(current_user);
+                    log_admin_action(current_user, "Deleted schedule");
                     break;
                 case 6:
                     display_schedules();
+                    log_admin_action(current_user, "Viewed all schedules");
                     break;
                 case 7:
                     update_fare(1);
+                    log_admin_action(current_user, "Updated fare");
                     break;
                 case 8:
                     create_admin(current_user);
+                    log_admin_action(current_user, "Created new admin account");
                     break;
                 case 9:
-                    printf("%s%sLogging out... Goodbye!%s\n", BOLD, GREEN, RESET);
+                    view_all_bookings();
+                    break;
+                case 10:
+                    view_admin_logs();
+                    log_admin_action(current_user, "Viewed admin logs");
+                    break;
+                case 0:
+                    log_admin_action(current_user, "Logged out");
+                    printf("%s%sLogging out... Goodbye! Hope to see you again soon!%s\n", BOLD, GREEN, RESET);
                     return 0;
                 default:
                     printf("%s%sInvalid choice. Please try again.%s\n", BOLD, RED, RESET);
@@ -234,8 +348,8 @@ int main() {
                 case 7:
                     view_bookings(current_user);
                     break;
-                case 8:
-                    printf("%s%sLogging out... Goodbye!%s\n", BOLD, GREEN, RESET);
+                case 0:
+                    printf("%s%sLogging out... Goodbye! Hope to see you again soon!%s\n", BOLD, GREEN, RESET);
                     return 0;
                 default:
                     printf("%s%sInvalid choice. Please try again.%s\n", BOLD, RED, RESET);

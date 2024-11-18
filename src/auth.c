@@ -5,6 +5,17 @@
 #include <unistd.h>
 #include "auth.h"
 
+// ANSI color codes
+#define RESET   "\x1B[0m"
+#define RED     "\x1B[31m"
+#define GREEN   "\x1B[32m"
+#define YELLOW  "\x1B[33m"
+#define BLUE    "\x1B[34m"
+#define MAGENTA "\x1B[35m"
+#define CYAN    "\x1B[36m"
+#define WHITE   "\x1B[37m"
+#define BOLD    "\x1B[1m"
+
 #define MAX_USERNAME 50
 #define MAX_PASSWORD 50
 #define MAX_ATTEMPTS 2
@@ -49,12 +60,12 @@ void get_password(char *password, int max_len) {
 
 int authenticate() {
     int choice;
-    printf("\nWelcome to Bengaluru Public Transport Management System\n");
-    printf("1. Admin Login\n");
-    printf("2. Client Portal\n");
-    printf("Enter your choice (1-2): ");
+    printf("\n%s%sWelcome to Bengaluru Public Transport Management System%s\n", BOLD, BLUE, RESET);
+    printf("%s%s1.%s Admin Login\n", BOLD, GREEN, RESET);
+    printf("%s%s2.%s Client Portal\n", BOLD, CYAN, RESET);
+    printf("%s%sEnter your choice (1-2):%s ", BOLD, YELLOW, RESET);
     if (scanf("%d", &choice) != 1) {
-        printf("Invalid input!\n");
+        printf("%s%sInvalid input!%s\n", BOLD, RED, RESET);
         return 0;
     }
     getchar();
@@ -68,20 +79,20 @@ int authenticate() {
                 }
                 attempts++;
                 if (attempts < MAX_ATTEMPTS) {
-                    printf("Invalid credentials! You have 1 more attempt.\n");
+                    printf("%s%sInvalid credentials! You have 1 more attempt.%s\n", BOLD, RED, RESET);
                 }
             }
-            printf("Maximum login attempts exceeded. Exiting...\n");
+            printf("%s%sMaximum login attempts exceeded. Exiting...%s\n", BOLD, RED, RESET);
             exit(1);
         }
         case 2: {
             int client_choice;
-            printf("\nClient Portal\n");
-            printf("1. Login\n");
-            printf("2. Register\n");
-            printf("Enter your choice (1-2): ");
+            printf("\n%s%sClient Portal%s\n", BOLD, BLUE, RESET);
+            printf("%s%s1.%s Login\n", BOLD, GREEN, RESET);
+            printf("%s%s2.%s Register\n", BOLD, CYAN, RESET);
+            printf("%s%sEnter your choice (1-2):%s ", BOLD, YELLOW, RESET);
             if (scanf("%d", &client_choice) != 1) {
-                printf("Invalid input!\n");
+                printf("%s%sInvalid input!%s\n", BOLD, RED, RESET);
                 return 0;
             }
             getchar();
@@ -94,10 +105,10 @@ int authenticate() {
                     }
                     attempts++;
                     if (attempts < MAX_ATTEMPTS) {
-                        printf("Invalid credentials! You have 1 more attempt.\n");
+                        printf("%s%sInvalid credentials! You have 1 more attempt.%s\n", BOLD, RED, RESET);
                     }
                 }
-                printf("Maximum login attempts exceeded. Exiting...\n");
+                printf("%s%sMaximum login attempts exceeded. Exiting...%s\n", BOLD, RED, RESET);
                 exit(1);
             } else if (client_choice == 2) {
                 client_register();
@@ -106,7 +117,7 @@ int authenticate() {
             break;
         }
         default:
-            printf("Invalid choice!\n");
+            printf("%s%sInvalid choice!%s\n", BOLD, RED, RESET);
             return 0;
     }
     return 0;
@@ -116,33 +127,38 @@ int admin_login() {
     char username[MAX_USERNAME];
     char password[MAX_PASSWORD];
 
-    printf("\nAdmin Login\n");
-    printf("Username: ");
+    printf("\n%s%sAdmin Login%s\n", BOLD, BLUE, RESET);
+    printf("%s%sUsername:%s ", BOLD, YELLOW, RESET);
     if (fgets(username, MAX_USERNAME, stdin) == NULL) {
-        printf("Error reading username!\n");
+        printf("%s%sError reading username!%s\n", BOLD, RED, RESET);
         return 0;
     }
     username[strcspn(username, "\n")] = 0;
     
-    printf("Password: ");
+    printf("%s%sPassword:%s ", BOLD, YELLOW, RESET);
     get_password(password, MAX_PASSWORD);
 
-    return validate_admin(username, password);
+    if (validate_admin(username, password)) {
+        // Store the username in a new variable
+        current_user = strdup(username);
+        return 1;
+    }
+    return 0;
 }
 
 int client_login() {
     char username[MAX_USERNAME];
     char password[MAX_PASSWORD];
 
-    printf("\nClient Login\n");
-    printf("Username: ");
+    printf("\n%s%sClient Login%s\n", BOLD, BLUE, RESET);
+    printf("%s%sUsername:%s ", BOLD, YELLOW, RESET);
     if (fgets(username, MAX_USERNAME, stdin) == NULL) {
-        printf("Error reading username!\n");
+        printf("%s%sError reading username!%s\n", BOLD, RED, RESET);
         return 0;
     }
     username[strcspn(username, "\n")] = 0;
     
-    printf("Password: ");
+    printf("%s%sPassword:%s ", BOLD, YELLOW, RESET);
     get_password(password, MAX_PASSWORD);
 
     return validate_client(username, password);
@@ -152,19 +168,19 @@ void client_register() {
     char username[MAX_USERNAME];
     char password[MAX_PASSWORD];
 
-    printf("\nClient Registration\n");
-    printf("Enter username: ");
+    printf("\n%s%sClient Registration%s\n", BOLD, BLUE, RESET);
+    printf("%s%sEnter username:%s ", BOLD, YELLOW, RESET);
     if (fgets(username, MAX_USERNAME, stdin) == NULL) {
-        printf("Error reading username!\n");
+        printf("%s%sError reading username!%s\n", BOLD, RED, RESET);
         return;
     }
     username[strcspn(username, "\n")] = 0;
     
-    printf("Enter password: ");
+    printf("%s%sEnter password:%s ", BOLD, YELLOW, RESET);
     get_password(password, MAX_PASSWORD);
 
     save_client(username, password);
-    printf("Registration successful!\n");
+    printf("%s%sRegistration successful!%s\n", BOLD, GREEN, RESET);
 }
 
 int validate_admin(char *username, char *password) {
@@ -180,7 +196,7 @@ int validate_admin(char *username, char *password) {
     while (fscanf(fp, "%s %s", stored_username, stored_password) == 2) {
         if (strcmp(username, stored_username) == 0 && strcmp(password, stored_password) == 0) {
             fclose(fp);
-            printf("Admin login successful!\n");
+            printf("%s%sAdmin login successful!%s\n", BOLD, GREEN, RESET);
             return 1;
         }
     }
@@ -202,7 +218,7 @@ int validate_client(char *username, char *password) {
     while (fscanf(fp, "%s %s", stored_username, stored_password) == 2) {
         if (strcmp(username, stored_username) == 0 && strcmp(password, stored_password) == 0) {
             fclose(fp);
-            printf("Client login successful!\n");
+            printf("%s%sClient login successful!%s\n", BOLD, GREEN, RESET);
             return 1;
         }
     }
@@ -237,14 +253,14 @@ void create_admin(char* admin_username) {
     char new_username[MAX_USERNAME];
     char new_password[MAX_PASSWORD];
 
-    printf("\nCreate New Admin Account\n");
-    printf("Enter new admin username: ");
+    printf("\n%s%sCreate New Admin Account%s\n", BOLD, BLUE, RESET);
+    printf("%s%sEnter new admin username:%s ", BOLD, YELLOW, RESET);
     scanf("%s", new_username);
     getchar();
 
-    printf("Enter password: ");
+    printf("%s%sEnter password:%s ", BOLD, YELLOW, RESET);
     get_password(new_password, MAX_PASSWORD);
 
     save_admin(new_username, new_password);
-    printf("New admin account created successfully!\n");
+    printf("%s%sNew admin account created successfully!%s\n", BOLD, GREEN, RESET);
 }

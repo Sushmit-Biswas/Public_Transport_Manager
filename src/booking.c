@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h> // Add this line to include STDIN_FILENO
 #include "routes.h" // Add routes header for Route struct and head
 #include "schedule.h" // Add schedule header for display_schedules()
 #include "booking.h" // Add booking header for struct definition
+#include <termios.h>
 
 // Global variables defined in header
 struct Booking bookings[MAX_BOOKINGS];
@@ -12,7 +14,7 @@ int booking_count = 0;
 void save_bookings_to_file() {
     FILE* file = fopen("bookings.txt", "w");
     if (file == NULL) {
-        printf("Error opening bookings file!\n");
+        printf("⚠️  Error opening bookings file!\n");
         return;
     }
 
@@ -56,8 +58,21 @@ void load_bookings_from_file() {
 }
 
 void make_booking(char* username) {
-    if (username == NULL || strlen(username) == 0) {
-        printf("Error: Invalid username\n");
+    printf("\n╔════════════════════════════════════╗\n");
+    printf("║         📋 New Booking Form        ║\n");
+    printf("╚════════════════════════════════════╝\n\n");
+
+    char client_name[MAX_USERNAME];
+    while (getchar() != '\n'); // Clear any leftover input buffer
+    printf("🤵 Please enter your full name (e.g. John Smith): ");
+    if (fgets(client_name, MAX_USERNAME, stdin) == NULL) {
+        printf("⚠️  Error reading name\n");
+        return;
+    }
+    client_name[strcspn(client_name, "\n")] = 0; // Remove newline
+
+    if (strlen(client_name) == 0) {
+        printf("⚠️  Name cannot be empty\n");
         return;
     }
 
@@ -66,44 +81,108 @@ void make_booking(char* username) {
     load_routes_from_file();
 
     if (booking_count >= MAX_BOOKINGS) {
-        printf("Maximum booking limit reached!\n");
+        printf("⚠️  Maximum booking limit reached!\n");
         return;
     }
 
     // Check if routes are loaded
     if (head == NULL) {
-        printf("No routes available!\n");
+        printf("⚠️  No routes available!\n");
         return;
     }
 
     struct Booking new_booking;
     new_booking.id = booking_count + 1;
-    strncpy(new_booking.username, username, MAX_USERNAME - 1);
+    strncpy(new_booking.username, client_name, MAX_USERNAME - 1);
     new_booking.username[MAX_USERNAME - 1] = '\0';
     new_booking.is_active = 1;
     new_booking.num_seats = 0;
     new_booking.num_taxis = 0;
     new_booking.total_fare = 0;
 
+    printf("\n📍 Available Routes & Schedules:\n");
+    printf("─────────────────────────────────\n");
     // Display available routes and schedules
     display_routes();
-    display_schedules();
 
-    printf("\nEnter route ID: ");
+    printf("\n🔢 Enter route ID: ");
     if (scanf("%d", &new_booking.route_id) != 1) {
-        printf("Invalid route ID!\n");
+        printf("⚠️  Invalid route ID!\n");
         while (getchar() != '\n'); // Clear input buffer
         return;
     }
     while (getchar() != '\n'); // Clear newline
 
-    printf("Enter schedule ID: ");
+    // Display only schedules for selected route
+    printf("\nSchedules for Route %d:\n", new_booking.route_id);
+    printf("╔══════╦═══════════╦════════════════╦══════════╗\n");
+    printf("║ ID   ║ Route ID  ║ Departure Time ║ Status   ║\n");
+    printf("╠══════╬═══════════╬════════════════╬══════════╣\n");
+
+    FILE* schedule_file = fopen("schedules.txt", "r");
+    if (schedule_file == NULL) {
+        printf("⚠️  Error opening schedules file!\n");
+        return;
+    }
+
+    char line[256];
+    int found_schedules = 0;
+    while (fgets(line, sizeof(line), schedule_file)) {
+        int id, route_id, hour, minute, active;
+        sscanf(line, "%d|%d|%d|%d|%d", &id, &route_id, &hour, &minute, &active);
+        if (route_id == new_booking.route_id) {
+            printf("║ %-4d ║ %-9d ║ %02d:%02d          ║ %-8s ║\n",
+                id, route_id, hour, minute, active ? "Active" : "Inactive");
+            found_schedules = 1;
+        }
+    }
+    printf("╚══════╩═══════════╩════════════════╩══════════╝\n");
+    fclose(schedule_file);
+
+    if (!found_schedules) {
+        printf("⚠️  No schedules found for this route!\n");
+        return;
+    }
+
+    printf("\n🕒 Enter schedule ID: ");
     if (scanf("%d", &new_booking.schedule_id) != 1) {
-        printf("Invalid schedule ID!\n");
+        printf("⚠️  Invalid schedule ID!\n");
         while (getchar() != '\n');
         return;
     }
     while (getchar() != '\n');
+
+    // Verify schedule belongs to selected route and is active
+    schedule_file = fopen("schedules.txt", "r");
+    int valid_schedule = 0;
+    int schedule_active = 0;
+    if (schedule_file != NULL) {
+        while (fgets(line, sizeof(line), schedule_file)) {
+            int id, route_id, hour, minute, active;
+            sscanf(line, "%d|%d|%d|%d|%d", &id, &route_id, &hour, &minute, &active);
+            if (id == new_booking.schedule_id) {
+                if (route_id != new_booking.route_id) {
+                    printf("⚠️  Selected schedule does not belong to route %d!\n", new_booking.route_id);
+                    fclose(schedule_file);
+                    return;
+                }
+                valid_schedule = 1;
+                schedule_active = active;
+                break;
+            }
+        }
+        fclose(schedule_file);
+    }
+
+    if (!valid_schedule) {
+        printf("⚠️  Invalid schedule ID!\n");
+        return;
+    }
+
+    if (!schedule_active) {
+        printf("⚠️  Selected schedule is inactive!\n");
+        return;
+    }
 
     // Find the route
     struct Route* current = head;
@@ -112,54 +191,118 @@ void make_booking(char* username) {
         if (current->id == new_booking.route_id && current->is_active) {
             route_found = 1;
             if (strstr(current->vehicle_type, "Bus") != NULL) {
-                printf("Enter number of seats to book (max %d): ", current->available_seats);
+                printf("\n🚌 Enter number of seats to book (max %d): ", current->available_seats);
                 if (scanf("%d", &new_booking.num_seats) != 1) {
-                    printf("Invalid number of seats!\n");
+                    printf("⚠️  Invalid number of seats!\n");
                     while (getchar() != '\n');
                     return;
                 }
                 while (getchar() != '\n');
 
                 if (new_booking.num_seats <= 0 || new_booking.num_seats > current->available_seats) {
-                    printf("Invalid number of seats!\n");
+                    printf("⚠️  Invalid number of seats!\n");
                     return;
                 }
-                current->available_seats -= new_booking.num_seats;
                 new_booking.total_fare = current->fare * new_booking.num_seats;
             } else {
-                printf("Enter number of taxis to book (max %d): ", current->available_vehicles);
+                printf("\n🚕 Enter number of taxis to book (max %d): ", current->available_vehicles);
                 if (scanf("%d", &new_booking.num_taxis) != 1) {
-                    printf("Invalid number of taxis!\n");
+                    printf("⚠️  Invalid number of taxis!\n");
                     while (getchar() != '\n');
                     return;
                 }
                 while (getchar() != '\n');
 
                 if (new_booking.num_taxis <= 0 || new_booking.num_taxis > current->available_vehicles) {
-                    printf("Invalid number of taxis!\n");
+                    printf("⚠️  Invalid number of taxis!\n");
                     return;
                 }
-                current->available_vehicles -= new_booking.num_taxis;
                 new_booking.total_fare = current->fare * new_booking.num_taxis;
+            }
+
+            printf("\n💰 Total fare: ₹%.2f\n", new_booking.total_fare);
+            printf("\n🔒 Would you like to confirm and pay for this booking? (y/n): ");
+            char confirm;
+            scanf(" %c", &confirm);
+            while (getchar() != '\n');
+
+            if (confirm != 'y' && confirm != 'Y') {
+                printf("❌ Booking cancelled.\n");
+                return;
+            }
+
+            printf("\n🔑 Please enter your full name again to authorize payment: ");
+            char auth_name[MAX_USERNAME];
+            struct termios old_term, new_term;
+            int i = 0;
+            char c;
+
+            if (tcgetattr(STDIN_FILENO, &old_term) != 0) {
+                perror("tcgetattr");
+                return;
+            }
+            new_term = old_term;
+            new_term.c_lflag &= ~(ECHO | ICANON);
+            if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) != 0) {
+                perror("tcsetattr");
+                return;
+            }
+
+            while ((c = getchar()) != '\n' && i < MAX_USERNAME - 1) {
+                auth_name[i] = c;
+                printf("*");
+                i++;
+            }
+            auth_name[i] = '\0';
+            printf("\n");
+
+            if (tcsetattr(STDIN_FILENO, TCSANOW, &old_term) != 0) {
+                perror("tcsetattr");
+                return;
+            }
+
+            if (strcmp(auth_name, client_name) != 0) {
+                printf("⚠️  Authorization failed - name does not match!\n");
+                return;
+            }
+
+            if (strstr(current->vehicle_type, "Bus") != NULL) {
+                current->available_seats -= new_booking.num_seats;
+            } else {
+                current->available_vehicles -= new_booking.num_taxis;
             }
 
             bookings[booking_count++] = new_booking;
             save_bookings_to_file();
             save_routes_to_file();
-            printf("Booking successful! Total fare: ₹%.2f\n", new_booking.total_fare);
+            printf("\n✅ Booking confirmed and payment processed!\n");
+            printf("🎫 Your booking ID is: %d\n", new_booking.id);
             return;
         }
         current = current->next;
     }
     
     if (!route_found) {
-        printf("Route not found or inactive!\n");
+        printf("⚠️  Route not found or inactive!\n");
     }
 }
 
 void cancel_booking(char* username) {
-    if (username == NULL || strlen(username) == 0) {
-        printf("Error: Invalid username\n");
+    printf("\n╔════════════════════════════════════╗\n");
+    printf("║        🚫 Cancel Booking           ║\n");
+    printf("╚════════════════════════════════════╝\n\n");
+
+    char client_name[MAX_USERNAME];
+    while (getchar() != '\n'); // Clear any leftover input buffer
+    printf("🤵 Please enter your full name (e.g. John Smith): ");
+    if (fgets(client_name, MAX_USERNAME, stdin) == NULL) {
+        printf("⚠️  Error reading name\n");
+        return;
+    }
+    client_name[strcspn(client_name, "\n")] = 0; // Remove newline
+
+    if (strlen(client_name) == 0) {
+        printf("⚠️  Name cannot be empty\n");
         return;
     }
 
@@ -170,13 +313,14 @@ void cancel_booking(char* username) {
     int booking_id;
     int found = 0;
 
-    printf("\nYour current bookings:\n");
-    printf("ID\tRoute\tSchedule\tSeats\tTaxis\tFare(₹)\n");
-    printf("------------------------------------------------\n");
+    printf("\n📋 Your current bookings:\n");
+    printf("╔═════╦═══════╦══════════╦═══════╦═══════╦══════════╗\n");
+    printf("║ ID  ║ Route ║ Schedule ║ Seats ║ Taxis ║ Fare(₹)  ║\n");
+    printf("╠═════╬═══════╬══════════╬═══════╬═══════╬══════════╣\n");
 
     for (int i = 0; i < booking_count; i++) {
-        if (bookings[i].is_active && strcmp(bookings[i].username, username) == 0) {
-            printf("%d\t%d\t%d\t\t%d\t%d\t%.2f\n",
+        if (bookings[i].is_active && strcmp(bookings[i].username, client_name) == 0) {
+            printf("║ %-3d ║ %-5d ║ %-8d ║ %-5d ║ %-5d ║ %-8.2f ║\n",
                 bookings[i].id,
                 bookings[i].route_id,
                 bookings[i].schedule_id,
@@ -186,15 +330,16 @@ void cancel_booking(char* username) {
             found = 1;
         }
     }
+    printf("╚═════╩═══════╩══════════╩═══════╩═══════╩══════════╝\n");
 
     if (!found) {
-        printf("No active bookings found!\n");
+        printf("\n⚠️  No active bookings found!\n");
         return;
     }
 
-    printf("\nEnter booking ID to cancel: ");
+    printf("\n🔢 Enter booking ID to cancel: ");
     if (scanf("%d", &booking_id) != 1) {
-        printf("Invalid booking ID!\n");
+        printf("⚠️  Invalid booking ID!\n");
         while (getchar() != '\n');
         return;
     }
@@ -202,7 +347,42 @@ void cancel_booking(char* username) {
 
     for (int i = 0; i < booking_count; i++) {
         if (bookings[i].id == booking_id && bookings[i].is_active && 
-            strcmp(bookings[i].username, username) == 0) {
+            strcmp(bookings[i].username, client_name) == 0) {
+
+            printf("\n🔑 Please enter your full name again to authorize cancellation: ");
+            char auth_name[MAX_USERNAME];
+            struct termios old_term, new_term;
+            int j = 0;
+            char c;
+
+            if (tcgetattr(STDIN_FILENO, &old_term) != 0) {
+                perror("tcgetattr");
+                return;
+            }
+            new_term = old_term;
+            new_term.c_lflag &= ~(ECHO | ICANON);
+            if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) != 0) {
+                perror("tcsetattr");
+                return;
+            }
+
+            while ((c = getchar()) != '\n' && j < MAX_USERNAME - 1) {
+                auth_name[j] = c;
+                printf("*");
+                j++;
+            }
+            auth_name[j] = '\0';
+            printf("\n");
+
+            if (tcsetattr(STDIN_FILENO, TCSANOW, &old_term) != 0) {
+                perror("tcsetattr");
+                return;
+            }
+
+            if (strcmp(auth_name, client_name) != 0) {
+                printf("⚠️  Authorization failed - name does not match!\n");
+                return;
+            }
             
             // Return seats/taxis to available pool
             struct Route* current = head;
@@ -218,32 +398,53 @@ void cancel_booking(char* username) {
                 current = current->next;
             }
 
-            bookings[i].is_active = 0;
+            // Calculate cancellation fee (20% of total fare)
+            float cancellation_fee = bookings[i].total_fare * 0.20;
+            float refund_amount = bookings[i].total_fare - cancellation_fee;
+
+            bookings[i].is_active = 0; // Mark booking as cancelled
+           
             save_bookings_to_file();
             save_routes_to_file();
-            printf("Booking cancelled successfully!\n");
+            printf("\n✅ Booking cancelled successfully!\n");
+            printf("💰 Cancellation fee (20%%): ₹%.2f\n", cancellation_fee);
+            printf("💰 Refunded amount: ₹%.2f\n", refund_amount);
             return;
         }
     }
-    printf("Booking not found or already cancelled!\n");
+    printf("\n⚠️  Booking not found or already cancelled!\n");
 }
 
 void view_bookings(char* username) {
-    if (username == NULL || strlen(username) == 0) {
-        printf("Error: Invalid username\n");
+    printf("\n╔════════════════════════════════════╗\n");
+    printf("║         📋 View Bookings           ║\n");
+    printf("╚════════════════════════════════════╝\n\n");
+
+    char client_name[MAX_USERNAME];
+    while (getchar() != '\n'); // Clear any leftover input buffer
+    printf("🤵 Please enter your full name (e.g. John Smith): ");
+    if (fgets(client_name, MAX_USERNAME, stdin) == NULL) {
+        printf("⚠️  Error reading name\n");
+        return;
+    }
+    client_name[strcspn(client_name, "\n")] = 0; // Remove newline
+
+    if (strlen(client_name) == 0) {
+        printf("⚠️  Name cannot be empty\n");
         return;
     }
 
     // Load latest bookings
     load_bookings_from_file();
 
-    printf("\nYour Bookings:\n");
-    printf("ID\tRoute\tSchedule\tSeats\tTaxis\tFare(₹)\tStatus\n");
-    printf("----------------------------------------------------------\n");
+    printf("\n📋 Your Bookings:\n");
+    printf("╔═════╦═══════╦══════════╦═══════╦═══════╦══════════╦══════════╗\n");
+    printf("║ ID  ║ Route ║ Schedule ║ Seats ║ Taxis ║ Fare(₹)  ║ Status   ║\n");
+    printf("╠═════╬═══════╬══════════╬═══════╬═══════╬══════════╬══════════╣\n");
     
     for (int i = 0; i < booking_count; i++) {
-        if (strcmp(bookings[i].username, username) == 0) {
-            printf("%d\t%d\t%d\t\t%d\t%d\t%.2f\t%s\n",
+        if (strcmp(bookings[i].username, client_name) == 0) {
+            printf("║ %-3d ║ %-5d ║ %-8d ║ %-5d ║ %-5d ║ %-8.2f ║ %-8s ║\n",
                 bookings[i].id,
                 bookings[i].route_id,
                 bookings[i].schedule_id,
@@ -253,23 +454,28 @@ void view_bookings(char* username) {
                 bookings[i].is_active ? "Active" : "Cancelled");
         }
     }
+    printf("╚═════╩═══════╩══════════╩═══════╩═══════╩══════════╩══════════╝\n");
 }
 
 void update_fare(int is_admin) {
     if (!is_admin) {
-        printf("Only admins can update fares!\n");
+        printf("⚠️  Only admins can update fares!\n");
         return;
     }
+
+    printf("\n╔════════════════════════════════════╗\n");
+    printf("║         💰 Update Fares            ║\n");
+    printf("╚════════════════════════════════════╝\n\n");
 
     int route_id;
     float new_fare;
 
     display_routes();
-    printf("\nEnter route ID to update fare: ");
+    printf("\n🔢 Enter route ID to update fare: ");
     scanf("%d", &route_id);
     getchar();
 
-    printf("Enter new fare: ");
+    printf("💰 Enter new fare: ");
     scanf("%f", &new_fare);
     getchar();
 
@@ -278,10 +484,10 @@ void update_fare(int is_admin) {
         if (current->id == route_id) {
             current->fare = new_fare;
             save_routes_to_file();
-            printf("Fare updated successfully!\n");
+            printf("\n✅ Fare updated successfully!\n");
             return;
         }
         current = current->next;
     }
-    printf("Route not found!\n");
+    printf("\n⚠️  Route not found!\n");
 }

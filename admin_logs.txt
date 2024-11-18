@@ -1,0 +1,7 @@
+[Mon Nov 18 20:37:10 2024] Admin: Sushmit | Action: Viewed admin logs
+[Mon Nov 18 20:37:21 2024] Admin: Sushmit | Action: Viewed admin logs
+[Mon Nov 18 20:37:25 2024] Admin: Sushmit | Action: Logged out
+[Mon Nov 18 20:37:37 2024] Admin: Biswas | Action: Viewed all routes
+[Mon Nov 18 20:37:42 2024] Admin: Biswas | Action: Viewed admin logs
+[Mon Nov 18 20:37:49 2024] Admin: Biswas | Action: Logged out
+[Mon Nov 18 20:54:56 2024] Admin: Sushmit | Action: Logged out
