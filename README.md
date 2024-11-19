@@ -1,15 +1,34 @@
-# 🚍 Public Transport Route and Schedule Management System
+# 🚍🚖 Public Transport Route and Schedule Management System
 
 Welcome to the Public Transport Route and Schedule Management System! This project helps manage public transport routes and schedules efficiently.
 
 ## 📋 Table of Contents
 
+- [Getting Started](#getting-started)
 - [Compiling and Running](#compiling-and-running)
 - [Features](#features)
 - [Contributing](#contributing)
 - [License](#license)
 
-## 🚀 Compiling and Running on Linux/Unix based Systems
+## 🏁 Getting Started
+
+To get started with the project, you need to clone the repository or download it to your local machine. Ensure you have 'MAKE' installed to use the Makefile.
+
+Follow these steps to clone the repository and navigate to the project directory:
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Sushmit-Biswas/Public_Transport_Manager.git
+```
+
+### 2. Navigate to the Project Directory
+
+```bash
+cd Public_Transport_Manager
+```
+
+## 🚀 Compiling and Running
 
 Follow these steps to compile and run the project:
 
@@ -63,5 +82,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Thank you for your interest in the Public Transport Route and Schedule Management System! We hope it proves to be a valuable tool for your public transport needs.
-
-
