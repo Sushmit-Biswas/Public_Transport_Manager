@@ -4,6 +4,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include "auth.h"
+#include <ctype.h>
 
 // ANSI color codes
 #define RESET   "\x1B[0m"
@@ -19,6 +20,26 @@
 #define MAX_USERNAME 50
 #define MAX_PASSWORD 50
 #define MAX_ATTEMPTS 2
+#define MIN_PASSWORD_LENGTH 8
+
+// Helper function to validate password strength
+int validate_password_strength(const char *password) {
+    int has_upper = 0, has_lower = 0, has_digit = 0, has_special = 0;
+    size_t len = strlen(password);
+
+    if (len < MIN_PASSWORD_LENGTH) {
+        return 0;
+    }
+
+    for (size_t i = 0; i < len; i++) {
+        if (isupper(password[i])) has_upper = 1;
+        else if (islower(password[i])) has_lower = 1;
+        else if (isdigit(password[i])) has_digit = 1;
+        else if (strchr("@#$%^&*!?", password[i])) has_special = 1;
+    }
+
+    return has_upper && has_lower && has_digit && has_special;
+}
 
 // Helper function to get password without echoing
 void get_password(char *password, int max_len) {
@@ -176,8 +197,14 @@ void client_register() {
     }
     username[strcspn(username, "\n")] = 0;
     
-    printf("%s%sEnter password:%s ", BOLD, YELLOW, RESET);
-    get_password(password, MAX_PASSWORD);
+    do {
+        printf("%s%sEnter password (min 8 chars, must include uppercase, lowercase, number, and special char):%s ", BOLD, YELLOW, RESET);
+        get_password(password, MAX_PASSWORD);
+        
+        if (!validate_password_strength(password)) {
+            printf("%s%sPassword is too weak! Please try again.%s\n", BOLD, RED, RESET);
+        }
+    } while (!validate_password_strength(password));
 
     save_client(username, password);
     printf("%s%sRegistration successful!%s\n", BOLD, GREEN, RESET);
@@ -258,8 +285,14 @@ void create_admin(char* admin_username) {
     scanf("%s", new_username);
     getchar();
 
-    printf("%s%sEnter password:%s ", BOLD, YELLOW, RESET);
-    get_password(new_password, MAX_PASSWORD);
+    do {
+        printf("%s%sEnter password (min 8 chars, must include uppercase, lowercase, number, and special char):%s ", BOLD, YELLOW, RESET);
+        get_password(new_password, MAX_PASSWORD);
+        
+        if (!validate_password_strength(new_password)) {
+            printf("%s%sPassword is too weak! Please try again.%s\n", BOLD, RED, RESET);
+        }
+    } while (!validate_password_strength(new_password));
 
     save_admin(new_username, new_password);
     printf("%s%sNew admin account created successfully!%s\n", BOLD, GREEN, RESET);
