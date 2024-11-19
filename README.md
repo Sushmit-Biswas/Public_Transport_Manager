@@ -9,7 +9,7 @@ Welcome to the Public Transport Route and Schedule Management System! This proje
 - [Contributing](#contributing)
 - [License](#license)
 
-## 🚀 Compiling and Running
+## 🚀 Compiling and Running on Linux/Unix based Systems
 
 Follow these steps to compile and run the project:
 
