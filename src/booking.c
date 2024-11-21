@@ -1,16 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h> // Add this line to include STDIN_FILENO
-#include "routes.h" // Add routes header for Route struct and head
-#include "schedule.h" // Add schedule header for display_schedules()
-#include "booking.h" // Add booking header for struct definition
-#include <termios.h>
+#include <stdio.h>      // For input and output
+#include <stdlib.h>     // For exit function
+#include <string.h>     // For string manipulation  
+#include <unistd.h>     // For getchar function
+#include "routes.h"     // Add routes header for Route struct and head
+#include "schedule.h"   // Add schedule header for display_schedules()
+#include "booking.h"    // Add booking header for struct definition
+#include <termios.h>    // For password input (works on Linux)
 
 // Global variables defined in header
 struct Booking bookings[MAX_BOOKINGS];
 int booking_count = 0;
 
+// Function to save bookings to file
 void save_bookings_to_file() {
     FILE* file = fopen("bookings.txt", "w");
     if (file == NULL) {
@@ -34,6 +35,7 @@ void save_bookings_to_file() {
     fclose(file);
 }
 
+// Function to load bookings from file
 void load_bookings_from_file() {
     FILE* file = fopen("bookings.txt", "r");
     if (file == NULL) {
@@ -57,6 +59,7 @@ void load_bookings_from_file() {
     fclose(file);
 }
 
+// Function to make a new booking
 void make_booking(char* username) {
     printf("\n╔════════════════════════════════════╗\n");
     printf("║         📋 New Booking Form        ║\n");
@@ -180,7 +183,7 @@ void make_booking(char* username) {
     }
 
     if (!schedule_active) {
-        printf("⚠️  Selected schedule is inactive!\n");
+        printf("⚠️  Selected schedule is currently inactive!\n");
         return;
     }
 
@@ -283,10 +286,11 @@ void make_booking(char* username) {
     }
     
     if (!route_found) {
-        printf("⚠️  Route not found or inactive!\n");
+        printf("⚠️  Route not found or currently inactive!\n");
     }
 }
 
+// Function to cancel a booking
 void cancel_booking(char* username) {
     printf("\n╔════════════════════════════════════╗\n");
     printf("║        🚫 Cancel Booking           ║\n");
@@ -415,6 +419,7 @@ void cancel_booking(char* username) {
     printf("\n⚠️  Booking not found or already cancelled!\n");
 }
 
+// Function to view bookings
 void view_bookings(char* username) {
     printf("\n╔════════════════════════════════════╗\n");
     printf("║         📋 View Bookings           ║\n");
@@ -457,6 +462,7 @@ void view_bookings(char* username) {
     printf("╚═════╩═══════╩══════════╩═══════╩═══════╩══════════╩══════════╝\n");
 }
 
+// Function to update fares
 void update_fare(int is_admin) {
     if (!is_admin) {
         printf("⚠️  Only admins can update fares!\n");

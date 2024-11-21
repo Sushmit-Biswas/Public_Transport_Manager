@@ -1,10 +1,11 @@
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include "routes.h"
-#include "schedule.h"
-#include "auth.h"
-#include "booking.h"
+#include <stdio.h>        // For input and output
+#include <string.h>       // For string manipulation
+#include <time.h>         // For time functions
+#include "routes.h"       // For route functions
+#include "schedule.h"     // For schedule functions
+#include "auth.h"         // For authentication functions
+#include "booking.h"      // For booking functions   
+
 // ANSI color codes
 #define RESET   "\x1B[0m"
 #define RED     "\x1B[31m"
@@ -86,6 +87,7 @@ void log_admin_action(const char* username, const char* action) {
     fclose(logfile);
 }
 
+// Function to print header
 void print_header(const char* title) {
     printf("\n%s%s", BOLD, BLUE);
     printf("╔═════════════════════════════════════════════════════════════╗\n");
@@ -93,21 +95,79 @@ void print_header(const char* title) {
     printf("╚═════════════════════════════════════════════════════════════╝\n%s", RESET);
 }
 
+// Function to update vehicle capacity
+void update_vehicle_capacity() {
+    int route_id;
+    printf("\n%s%sEnter route ID to update capacity:%s ", BOLD, CYAN, RESET);
+    scanf("%d", &route_id);
+    while(getchar() != '\n');
+
+    load_routes_from_file();
+    struct Route* current = head;
+    int found = 0;
+
+    while (current != NULL) {
+        if (current->id == route_id) {
+            found = 1;
+            printf("\nCurrent details for Route %d:\n", route_id);
+            printf("Vehicle Type: %s\n", current->vehicle_type);
+            if (strstr(current->vehicle_type, "Bus")) {
+                printf("Available Seats: %d\n", current->available_seats);
+                printf("\nEnter new number of available seats: ");
+                int new_seats;
+                scanf("%d", &new_seats);
+                while(getchar() != '\n');
+
+                if (new_seats < 0) {
+                    printf("%s%sInvalid number of seats!%s\n", BOLD, RED, RESET);
+                    return;
+                }
+                current->available_seats = new_seats;
+            } else {
+                printf("Available Taxis: %d\n", current->available_vehicles);
+                printf("\nEnter new number of available taxis: ");
+                int new_taxis;
+                scanf("%d", &new_taxis);
+                while(getchar() != '\n');
+
+                if (new_taxis < 0) {
+                    printf("%s%sInvalid number of taxis!%s\n", BOLD, RED, RESET);
+                    return;
+                }
+                current->available_vehicles = new_taxis;
+            }
+            break;
+        }
+        current = current->next;
+    }
+
+    if (!found) {
+        printf("%s%sRoute not found!%s\n", BOLD, RED, RESET);
+        return;
+    }
+
+    save_routes_to_file();
+    printf("%s%sVehicle capacity updated successfully!%s\n", BOLD, GREEN, RESET);
+}
+
+// Function to display admin menu
 void display_admin_menu() {
     print_header("Bengaluru Public Transport Management System (Admin) ");
-    printf("\n%s%s[1]%s Add Route\n", BOLD, GREEN, RESET);
+    printf("\n%s%s[1]%s Add Route\n", BOLD, MAGENTA, RESET);
     printf("%s%s[2]%s Delete Route\n", BOLD, RED, RESET);
     printf("%s%s[3]%s Display Routes\n", BOLD, CYAN, RESET);
     printf("%s%s[4]%s Add Schedule\n", BOLD, GREEN, RESET);
     printf("%s%s[5]%s Delete Schedule\n", BOLD, RED, RESET);
     printf("%s%s[6]%s Display Schedules\n", BOLD, CYAN, RESET);
     printf("%s%s[7]%s Update Trip Fares\n", BOLD, YELLOW, RESET);
-    printf("%s%s[8]%s Create New Admin Account\n", BOLD, MAGENTA, RESET);
-    printf("%s%s[9]%s View All Bookings\n", BOLD, BRIGHT_YELLOW, RESET);
-    printf("%s%s[10]%s View Admin Logs\n", BOLD, BRIGHT_BLUE, RESET);
+    printf("%s%s[8]%s Update Bus seats/taxis availability\n", BOLD, BRIGHT_BLUE, RESET);
+    printf("%s%s[9]%s View All Bookings\n", BOLD, MAGENTA, RESET);
+    printf("%s%s[10]%s Create New Admin Account\n", BOLD, CYAN, RESET);
+    printf("%s%s[11]%s View Admin Logs\n", BOLD, YELLOW, RESET);
     printf("%s%s[0]%s Logout\n", BOLD, RED, RESET);
 }
 
+// Function to display client menu
 void display_client_menu() {
     print_header("Bengaluru Public Transport Management System (Client)");
     printf("\n%s%s[1]%s Display All Routes\n", BOLD, CYAN, RESET);
@@ -120,6 +180,7 @@ void display_client_menu() {
     printf("%s%s[0]%s Logout\n", BOLD, RED, RESET);
 }
 
+// Function to view all bookings
 void view_all_bookings() {
     printf("\n%s%sAll Bookings:%s\n", BOLD, YELLOW, RESET);
     printf("%s╔═════╦══════════════════╦═══════╦══════════╦═══════╦═══════╦══════════╗%s\n", BOLD, RESET);
@@ -150,6 +211,7 @@ void view_all_bookings() {
     log_admin_action(current_user, "Viewed all bookings");
 }
 
+// Function to filter routes by location
 void filter_routes_by_location() {
     char start[50], end[50];
     printf("\n%s%sEnter starting point (or press Enter to skip):%s ", BOLD, CYAN, RESET);
@@ -169,12 +231,12 @@ void filter_routes_by_location() {
     printf("%s╠══════╬════════════════════╬════════════════════╬═══════════════╬══════════╬══════════╣%s\n", BOLD, RESET);
 
     load_routes_from_file(); // Load routes from file
-    struct Route* current = head;
-    while (current != NULL) {
+    struct Route* current = head; // Initialize current pointer to head of the list
+    while (current != NULL) {       
         if ((strlen(start) == 0 || strcasecmp(current->start_point, start) == 0) &&
             (strlen(end) == 0 || strcasecmp(current->end_point, end) == 0)) {
             printf("║ %-4d ║ %-18s ║ %-18s ║ %-13s ║ %-8d ║ ₹%-7.2f ║\n",
-                current->id, 
+                current->id,
                 current->start_point,
                 current->end_point,
                 current->vehicle_type,
@@ -186,12 +248,13 @@ void filter_routes_by_location() {
     }
     
     if (!found) {
-        printf("║ %s%-85s%s ║\n", BOLD, "No routes found matching the criteria", RESET);
+        printf("║ %s%-85s%s║\n", BOLD, "No routes found matching the criteria", RESET);
     }
 
     printf("%s╚══════╩════════════════════╩════════════════════╩═══════════════╩══════════╩══════════╝%s\n", BOLD, RESET);
 }
 
+// Function to filter routes by vehicle type
 void filter_routes_by_vehicle() {
     printf("\n%s%sFilter by:%s\n", BOLD, YELLOW, RESET);
     printf("%s1.%s AC Bus\n", BOLD, RESET);
@@ -242,6 +305,7 @@ void filter_routes_by_vehicle() {
     printf("%s╚══════╩════════════════════╩════════════════════╩═══════════════╩══════════╩══════════╝%s\n", BOLD, RESET);
 }
 
+// Main function
 int main() {
     int user_type;
     int attempts = 0;
@@ -301,13 +365,17 @@ int main() {
                     log_admin_action(current_user, "Updated fare");
                     break;
                 case 8:
-                    create_admin(current_user);
-                    log_admin_action(current_user, "Created new admin account");
+                    update_vehicle_capacity();
+                    log_admin_action(current_user, "Updated vehicle capacity");
                     break;
                 case 9:
                     view_all_bookings();
                     break;
                 case 10:
+                    create_admin(current_user);
+                    log_admin_action(current_user, "Created new admin account");
+                    break;
+                case 11:
                     view_admin_logs();
                     log_admin_action(current_user, "Viewed admin logs");
                     break;

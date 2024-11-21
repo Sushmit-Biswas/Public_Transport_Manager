@@ -1,20 +1,20 @@
-1|Electronic City|Kormangala|AC Bus|56|0|40.00|1
+1|Electronic City|Kormangala|AC Bus|60|0|40.00|1
 2|Electronic City|Kormangala|Non-AC Bus|60|0|30.00|1
-3|Electronic City|MG Road|AC Taxi|4|0|100.00|1
+3|Electronic City|MG Road|AC Taxi|4|6|100.00|1
 4|Electronic City|Kormangala|Non-AC Taxi|4|0|80.00|1
-5|Majestic|Kormangala|AC Bus|57|0|40.00|1
+5|Majestic|Kormangala|AC Bus|60|0|40.00|1
 6|Indiranagar|Electronic City|Non-AC Bus|60|0|30.00|1
 7|Majestic|Kormangala|AC Taxi|4|6|100.00|1
-8|Majestic|MG Road|Non-AC Taxi|4|2|80.00|1
+8|Majestic|MG Road|Non-AC Taxi|4|3|80.00|1
 9|Majestic|Kormangala|AC Bus|60|0|40.00|1
 10|Indiranagar|Kormangala|Non-AC Bus|60|0|30.00|1
 11|Majestic|Kormangala|AC Taxi|4|1|150.00|1
 12|Majestic|MG Road|Non-AC Taxi|4|3|80.00|1
 13|Whitefield|Electronic City|AC Bus|60|0|40.00|1
 14|Indiranagar|Kormangala|Non-AC Bus|60|0|30.00|1
-15|Whitefield|Kormangala|AC Taxi|4|2|125.00|1
+15|Whitefield|Kormangala|AC Taxi|4|1|125.00|1
 16|Whitefield|MG Road|Non-AC Taxi|4|6|80.00|1
-17|Whitefield|Jayanagar|AC Bus|60|0|40.00|1
+17|Whitefield|Jayanagar|AC Bus|60|0|60.00|1
 18|Indiranagar|Kormangala|Non-AC Bus|2|60|30.00|1
 19|Whitefield|Electronic City|AC Taxi|4|3|100.00|1
 20|Whitefield|MG Road|Non-AC Taxi|4|5|80.00|1

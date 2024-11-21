@@ -1,19 +1,19 @@
-#ifndef BOOKING_H
-#define BOOKING_H
+#ifndef BOOKING_H               // If BOOKING_H is not defined
+#define BOOKING_H               // Define BOOKING_H macro
 
-#define MAX_BOOKINGS 1000
-#define MAX_USERNAME 50
+#define MAX_BOOKINGS 1000       // Define maximum number of bookings
+#define MAX_USERNAME 50         // Define maximum username length
 
 // Structure definition for Booking
 struct Booking {
-    int id;
-    char username[MAX_USERNAME];
-    int route_id;
-    int schedule_id;
-    int num_seats;    // For bus bookings
-    int num_taxis;    // For taxi bookings
-    float total_fare;
-    int is_active;    // 1 for active, 0 for cancelled
+    int id;                      // Booking ID
+    char username[MAX_USERNAME]; // Username
+    int route_id;                // Route ID
+    int schedule_id;             // Schedule ID
+    int num_seats;               // Number of seats (for bus bookings)
+    int num_taxis;               // Number of taxis (for taxi bookings)
+    float total_fare;            // Total fare
+    int is_active;               // 1 for active, 0 for cancelled
 };
 
 // Function declarations for booking management

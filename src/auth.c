@@ -1,10 +1,10 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <termios.h>
-#include <unistd.h>
-#include "auth.h"
-#include <ctype.h>
+#include <stdio.h>      // For input and output
+#include <string.h>     // For string manipulation
+#include <stdlib.h>     // For exit function
+#include <termios.h>    // For password input (works on Linux)
+#include <unistd.h>     // For getchar function     
+#include "auth.h"       // For authentication functions
+#include <ctype.h>      // For character checking
 
 // ANSI color codes
 #define RESET   "\x1B[0m"
@@ -79,6 +79,7 @@ void get_password(char *password, int max_len) {
     }
 }
 
+// Function to authenticate user
 int authenticate() {
     int choice;
     printf("\n%s%sWelcome to Bengaluru Public Transport Management System%s\n", BOLD, BLUE, RESET);
@@ -144,6 +145,7 @@ int authenticate() {
     return 0;
 }
 
+// Function to handle admin login
 int admin_login() {
     char username[MAX_USERNAME];
     char password[MAX_PASSWORD];
@@ -167,6 +169,7 @@ int admin_login() {
     return 0;
 }
 
+// Function to handle client login
 int client_login() {
     char username[MAX_USERNAME];
     char password[MAX_PASSWORD];
@@ -185,6 +188,7 @@ int client_login() {
     return validate_client(username, password);
 }
 
+// Function to handle client registration
 void client_register() {
     char username[MAX_USERNAME];
     char password[MAX_PASSWORD];
@@ -210,6 +214,7 @@ void client_register() {
     printf("%s%sRegistration successful!%s\n", BOLD, GREEN, RESET);
 }
 
+// Function to validate admin credentials
 int validate_admin(char *username, char *password) {
     FILE *fp = fopen("admin.txt", "r");
     if (fp == NULL) {
@@ -232,6 +237,7 @@ int validate_admin(char *username, char *password) {
     return 0;
 }
 
+// Function to validate client credentials
 int validate_client(char *username, char *password) {
     FILE *fp = fopen("clients.txt", "r");
     if (fp == NULL) {
@@ -254,6 +260,7 @@ int validate_client(char *username, char *password) {
     return 0;
 }
 
+// Function to save client credentials
 void save_client(char *username, char *password) {
     FILE *fp = fopen("clients.txt", "a");
     if (fp == NULL) {
@@ -265,6 +272,7 @@ void save_client(char *username, char *password) {
     fclose(fp);
 }
 
+// Function to save admin credentials
 void save_admin(char *username, char *password) {
     FILE *fp = fopen("admin.txt", "a");
     if (fp == NULL) {
@@ -276,6 +284,7 @@ void save_admin(char *username, char *password) {
     fclose(fp);
 }
 
+// Function to create a new admin account
 void create_admin(char* admin_username) {
     char new_username[MAX_USERNAME];
     char new_password[MAX_PASSWORD];

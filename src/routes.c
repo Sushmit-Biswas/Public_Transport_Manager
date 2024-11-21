@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>        // For input and output
+#include <stdlib.h>       // For exit function
+#include <string.h>       // For string manipulation
 
 #define MAX_ROUTE_NAME 50
 #define MAX_VEHICLE_TYPE 20
@@ -16,6 +16,7 @@
 #define WHITE   "\x1B[37m"
 #define BOLD    "\x1B[1m"
 
+// Structure for a route
 struct Route {
     int id;
     char start_point[MAX_ROUTE_NAME];
@@ -31,6 +32,7 @@ struct Route {
 struct Route* head = NULL;
 int route_count = 0;
 
+// Function to save routes to file
 void save_routes_to_file() {
     FILE* file = fopen("routes.txt", "w");
     if (file == NULL) {
@@ -76,6 +78,7 @@ void save_routes_to_file() {
     fclose(file);
 }
 
+// Function to load routes from file
 void load_routes_from_file() {
     FILE* file = fopen("routes.txt", "r");
     if (file == NULL) {
@@ -132,6 +135,7 @@ void load_routes_from_file() {
     fclose(file);
 }
 
+// Function to add a new route
 void add_route() {
     // Load latest routes from file
     load_routes_from_file();
@@ -229,6 +233,7 @@ void add_route() {
     printf("%s%sRoute added successfully!%s\n\n", BOLD, GREEN, RESET);
 }
 
+// Function to delete a route
 void delete_route() {
     // Load latest routes from file
     load_routes_from_file();
@@ -255,6 +260,7 @@ void delete_route() {
     printf("%s%sRoute not found!%s\n\n", BOLD, RED, RESET);
 }
 
+// Function to display available routes
 void display_routes() {
     // Load latest routes from file
     load_routes_from_file();

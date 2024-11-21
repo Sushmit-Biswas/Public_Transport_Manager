@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "schedule.h"
+#include <stdio.h>        // For input and output
+#include <stdlib.h>       // For exit function  
+#include <string.h>       // For string manipulation
+#include "schedule.h"     // For schedule functions
 
 // ANSI color codes
 #define RESET   "\x1B[0m"
@@ -20,6 +20,7 @@
 struct Schedule schedules[MAX_SCHEDULES];
 int schedule_count = 0;
 
+// Function to save schedules to file
 void save_schedules_to_file() {
     FILE* file = fopen("schedules.txt", "w");
     if (file == NULL) {
@@ -40,6 +41,7 @@ void save_schedules_to_file() {
     fclose(file);
 }
 
+// Function to load schedules from file
 void load_schedules_from_file() {
     FILE* file = fopen("schedules.txt", "r");
     if (file == NULL) {
@@ -60,6 +62,7 @@ void load_schedules_from_file() {
     fclose(file);
 }
 
+// Function to add a new schedule
 void add_schedule() {
     if (schedule_count >= MAX_SCHEDULES) {
         printf("%s%sMaximum schedule limit reached!%s\n", BOLD, RED, RESET);
@@ -104,6 +107,7 @@ void add_schedule() {
     printf("%s%sSchedule added successfully!%s\n", BOLD, GREEN, RESET);
 }
 
+// Function to delete a schedule
 void delete_schedule() {
     int id;
     printf("%s%sEnter schedule ID to delete:%s ", BOLD, CYAN, RESET);
@@ -125,6 +129,7 @@ void delete_schedule() {
     printf("%s%sSchedule not found!%s\n", BOLD, RED, RESET);
 }
 
+// Function to display schedules
 void display_schedules() {
     // Load latest schedules from file
     load_schedules_from_file();
