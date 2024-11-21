@@ -69,7 +69,17 @@ make clean
 ### General Features
 - **Authentication**: Login system for admins and clients
 - **Activity Logging**: Logging of admin actions for auditing
-- **User Interface**: User-friendly interface with ANSI color formatting
+- **User Interface**: User-friendly interface with ANSI colour formatting
+
+
+## 👨🏻👩🏻 Team Members
+1. Sushmit Biswas
+2. Parth Sutaria
+3. Yashwant Kadire
+4. Shive S Bhat
+5. Hasini Samudrala
+6. Perla Brinda
+
 
 ## 🤝 Contributing
 
@@ -81,4 +91,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Thank you for your interest in the Public Transport Route and Schedule Management System! We hope it proves to be a valuable tool for your public transport needs.
+
+
+Thank you for being so interested in the Public Transport Route and Schedule Management System! We hope it proves to be a valuable tool for your public transport needs.
