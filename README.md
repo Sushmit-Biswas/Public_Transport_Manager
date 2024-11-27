@@ -7,22 +7,29 @@ Welcome to the Public Transport Route and Schedule Management System! This proje
 - [Getting Started](#getting-started)
 - [Compiling and Running](#compiling-and-running)
 - [Features](#features)
+- [Team Members](#team-members)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## 🏁 Getting Started
 
-To get started with the project, you need to clone the repository or download it to your local machine. Ensure you have 'MAKE' installed to use the Makefile.
+To get started with the project, you need to clone the repository or download it to your local machine. Ensure you have 'MAKE' installed to use the Makefile. If you're using Ubuntu and don't have MAKE installed, follow these steps to install it:
 
-Follow these steps to clone the repository and navigate to the project directory:
+### 1. Install MAKE in Ubuntu
 
-### 1. Clone the Repository
+```bash
+sudo apt update && sudo apt install build-essential
+```
+
+Once MAKE is installed, follow these steps to clone the repository and navigate to the project directory:
+
+### 2. Clone the Repository
 
 ```bash
 git clone https://github.com/Sushmit-Biswas/Public_Transport_Manager.git
 ```
 
-### 2. Navigate to the Project Directory
+### 3. Navigate to the Project Directory
 
 ```bash
 cd Public_Transport_Manager
@@ -30,7 +37,7 @@ cd Public_Transport_Manager
 
 ## 🚀 Compiling and Running
 
-Follow these steps to compile and run the project:
+Follow these steps to compile and run the project in Ubuntu:
 
 ### 1. **Compile the Project**
 ```bash
@@ -58,6 +65,8 @@ make clean
 - **Create Admin Accounts**: Create new admin accounts
 - **View Bookings**: View all client bookings
 - **View Admin Logs**: View logs of admin activities
+- **Manage Vehicle Capacity**: Update vehicle capacity for routes
+- **Manage Vehicle Availability**: Update vehicle availability for routes
 
 ### Client Features
 - **Route Display**: View all available routes
@@ -69,16 +78,18 @@ make clean
 ### General Features
 - **Authentication**: Login system for admins and clients
 - **Activity Logging**: Logging of admin actions for auditing
-- **User Interface**: User-friendly interface with ANSI colour formatting
-
+- **User Interface**: User-friendly interface with ANSI color formatting
+- **Error Handling**: Robust error handling for user input and system operations
 
 ## 👨🏻👩🏻 Team Members
-1. Sushmit Biswas
-2. Parth Sutaria
-3. Yashwant Kadire
-4. Shive S Bhat
-5. Hasini Samudrala
-6. Perla Brinda
+| Member | Contributions |
+| --- | --- |
+| Sushmit Biswas | auth.h, auth.c |
+| Parth Sutaria | routes.h, routes.c |
+| Yashwant Kadire | schedule.h, schedule.c |
+| Shive S Bhat | README.md, Makefile |
+| Hasini Samudrala | bookings.h, bookings.c |
+| Perla Brinda | main.c, CONTRIBUTING.md |
 
 
 ## 🤝 Contributing
@@ -91,6 +102,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-
-
-Thank you for being so interested in the Public Transport Route and Schedule Management System! We hope it proves to be a valuable tool for your public transport needs.
+_**Thank you**_ 🤍 _**for being so interested in the Public Transport Route and Schedule Management System! We hope it proves to be a valuable tool for your public transport needs.**_

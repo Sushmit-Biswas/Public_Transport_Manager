@@ -1,6 +1,7 @@
-1|John Smith|1|4|2|0|1|80.00
-2|John Smith|3|22|0|1|1|100.00
-3|John Smith|11|1|0|2|1|300.00
-4|John Smith|4|36|0|1|1|80.00
-5|Kio|1|36|1|0|1|40.00
-6|Mr. Sen|1|1|1|0|1|40.00
+1|Parth Sutaria|1|4|2|0|1|80.00
+2|Sushmit Biswas|3|22|0|1|1|100.00
+3|Parth Sutaria|11|1|0|2|1|300.00
+4|Shive S Bhat|4|36|0|1|1|80.00
+6|Hasini Samudrala|1|36|1|0|1|40.00
+7|Brinda Perla|1|1|1|0|1|40.00
+8|Sushmit Biswas|17|46|3|0|1|180.00

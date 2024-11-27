@@ -17,6 +17,7 @@
 #define WHITE   "\x1B[37m"
 #define BOLD    "\x1B[1m"
 
+// Some more macros
 #define MAX_USERNAME 50
 #define MAX_PASSWORD 50
 #define MAX_ATTEMPTS 2
@@ -34,6 +35,7 @@ int validate_password_strength(const char *password) {
 
     // ctype.h functions to check for uppercase, lowercase, digit, and special character
     // Check if password contains at least one uppercase letter, one lowercase letter, one digit, and one special character
+    // strchr() checks if a character is present in a string
     for (size_t i = 0; i < len; i++) {
         if (isupper(password[i])) has_upper = 1;
         else if (islower(password[i])) has_lower = 1;
@@ -59,6 +61,17 @@ void get_password(char *password, int max_len) {
     new_term = old_term; // copy current terminal attributes to new_term
 
     // Disable echo and canonical mode
+    // ECHO and ICANON are flags for echo and canonical mode
+    // ~(ECHO | ICANON) is a bitwise NOT operation on ECHO and ICANON
+    // This operation turns off echo and canonical mode
+    // c_lflag is a bitmask for local flags
+    // &= is a bitwise AND operation
+    // ~(ECHO | ICANON) turns off echo and canonical mode
+    // TCSANOW is a flag for immediate change
+
+    // Echo means displaying the characters as they are typed
+    // Canonical mode means waiting for newline character to be pressed
+    
     new_term.c_lflag &= ~(ECHO | ICANON);
     if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) != 0) { // set new terminal attributes
         perror("tcsetattr"); // print error message if tcsetattr fails

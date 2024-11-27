@@ -17,12 +17,12 @@ struct Booking {
 };
 
 // Function declarations for booking management
-void make_booking(char* username);  // Creates a new booking for the given user
+void make_booking(char* username);   // Creates a new booking for the given user
 void cancel_booking(char* username); // Cancels an active booking for the user
-void view_bookings(char* username); // Displays all bookings for the user
-void save_bookings_to_file(void);   // Saves bookings data to file
-void load_bookings_from_file(void); // Loads bookings data from file
-void update_fare(int is_admin);     // Updates fare for a route (admin only)
+void view_bookings(char* username);  // Displays all bookings for the user
+void save_bookings_to_file(void);    // Saves bookings data to file
+void load_bookings_from_file(void);  // Loads bookings data from file
+void update_fare(int is_admin);      // Updates fare for a route (admin only)
 
 // Global variables
 extern struct Booking bookings[MAX_BOOKINGS]; // Array to store all bookings

@@ -3,18 +3,18 @@
 
 // Structure definition for Schedule
 struct Schedule {
-    int id;
-    int route_id;
+    int id;                           // Schedule ID
+    int route_id;                     // Route ID
     int departure_hour;               // Departure hour
     int departure_minute;             // Departure minute
     int is_active;                    // 1 for active, 0 for inactive
 };
 
 // Function declarations for schedule management
-void add_schedule();             // Add a new schedule
-void delete_schedule();          // Delete a schedule
-void display_schedules();        // Display schedules
-void save_schedules_to_file();   // Save schedules to file
-void load_schedules_from_file(); // Load schedules from file
+void add_schedule();             // Function call to add a new schedule defined in schedule.c   
+void delete_schedule();          // Function call to delete a schedule defined in schedule.c
+void display_schedules();        // Function call to display schedules defined in schedule.c
+void save_schedules_to_file();   // Function call to save schedules to file defined in schedule.c
+void load_schedules_from_file(); // Function call to load schedules from file defined in schedule.c 
 
 #endif // SCHEDULE_H

@@ -24,7 +24,7 @@ struct Route {
     char vehicle_type[MAX_VEHICLE_TYPE]; // "AC Bus", "Non-AC Bus", "AC Taxi", "Non-AC Taxi"
     int available_seats; // For buses
     int available_vehicles; // For taxis
-    float fare;
+    float fare;     
     int is_active;
     struct Route* next;
 };
@@ -43,7 +43,7 @@ void save_routes_to_file() {
     // Create a temporary array to store routes for sorting
     struct Route* routes[100]; // Assuming max 100 routes
     int count = 0;
-    
+    // Store active routes in array
     struct Route* current = head;
     while (current != NULL) {
         if (current->is_active) {
@@ -53,6 +53,7 @@ void save_routes_to_file() {
     }
 
     // Sort routes by ID in ascending order
+    // Bubble sort algorithm
     for (int i = 0; i < count - 1; i++) {
         for (int j = 0; j < count - i - 1; j++) {
             if (routes[j]->id > routes[j + 1]->id) {
@@ -79,6 +80,7 @@ void save_routes_to_file() {
 }
 
 // Function to load routes from file
+// Using Linked List to store routes
 void load_routes_from_file() {
     FILE* file = fopen("routes.txt", "r");
     if (file == NULL) {
@@ -97,6 +99,7 @@ void load_routes_from_file() {
     char line[256];
     struct Route* prev = NULL;
     
+    // Read each line from file
     while (fgets(line, sizeof(line), file)) {
         struct Route* new_route = (struct Route*)malloc(sizeof(struct Route));
         if (new_route == NULL) {
@@ -105,6 +108,7 @@ void load_routes_from_file() {
             return;
         }
 
+        // Read values from line
         if (sscanf(line, "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%d",
             &new_route->id,
             new_route->start_point,
@@ -145,7 +149,7 @@ void add_route() {
         printf("%s%sMemory allocation failed!%s\n", BOLD, RED, RESET);
         return;
     }
-
+    
     new_route->id = ++route_count;
     new_route->is_active = 1;
     
@@ -153,15 +157,20 @@ void add_route() {
     while (getchar() != '\n');
     
     printf("%s%sEnter start point (within Bengaluru):%s\n", BOLD, CYAN, RESET);
-    if (fgets(new_route->start_point, MAX_ROUTE_NAME, stdin) == NULL) {
+    if (fgets(new_route->start_point, MAX_ROUTE_NAME, stdin) == NULL) { // Read start point
         printf("%s%sError reading input!%s\n", BOLD, RED, RESET);
         free(new_route);
         return;
     }
     new_route->start_point[strcspn(new_route->start_point, "\n")] = 0;
+    // Remove newline character from end of string
+    // strcspn() returns the index of the first occurrence of any character not in the string
+    // '\n' is the newline character
+    // So, strcspn(new_route->start_point, "\n") returns the index of the first newline character
+    // We then set that position to 0 to remove the newline character
     
     printf("%s%sEnter end point (within Bengaluru):%s\n", BOLD, CYAN, RESET);
-    if (fgets(new_route->end_point, MAX_ROUTE_NAME, stdin) == NULL) {
+    if (fgets(new_route->end_point, MAX_ROUTE_NAME, stdin) == NULL) { // Read end point
         printf("%s%sError reading input!%s\n", BOLD, RED, RESET);
         free(new_route);
         return;
