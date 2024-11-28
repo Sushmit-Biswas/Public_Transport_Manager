@@ -1,10 +1,13 @@
 #include <stdio.h>        // For input and output
 #include <string.h>       // For string manipulation
 #include <time.h>         // For time functions
+#include <stdlib.h>       // For system functions
+#include <unistd.h>       // For sleep function
 #include "routes.h"       // For route functions
 #include "schedule.h"     // For schedule functions
 #include "auth.h"         // For authentication functions
 #include "booking.h"      // For booking functions   
+
 
 // ANSI color codes for text formatting in the console
 #define RESET   "\x1B[0m"     
@@ -470,6 +473,8 @@ int main() {
                 case 0:
                     log_admin_action(current_user, "Logged out"); // Log logout action
                     printf("%s%sLogging out... Goodbye! Hope to see you again soon!%s\n", BOLD, GREEN, RESET);
+                    sleep(2); // Add a delay of 2 seconds before clearing the screen
+                    system("clear"); // Clear the screen on logout
                     return 0; // Exit the program
                 default:
                     printf("%s%sInvalid choice. Please try again.%s\n", BOLD, RED, RESET);
@@ -512,6 +517,8 @@ int main() {
                     break;
                 case 0:
                     printf("%s%sLogging out... Goodbye! Hope to see you again soon!%s\n", BOLD, GREEN, RESET);
+                    sleep(2); // Add a delay of 2 seconds before clearing the screen
+                    system("clear"); // Clear the screen on logout
                     return 0; // Exit the program
                 default:
                     printf("%s%sInvalid choice. Please try again.%s\n", BOLD, RED, RESET);

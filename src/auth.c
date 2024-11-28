@@ -2,7 +2,7 @@
 #include <string.h>     // For string manipulation
 #include <stdlib.h>     // For exit function
 #include <termios.h>    // For password input (works on Linux)
-#include <unistd.h>     // For getchar function     
+#include <unistd.h>     // For getchar function and sleep function
 #include "auth.h"       // For authentication functions
 #include <ctype.h>      // For character checking
 
@@ -71,6 +71,9 @@ void get_password(char *password, int max_len) {
 
     // Echo means displaying the characters as they are typed
     // Canonical mode means waiting for newline character to be pressed
+
+    // ECHO: When set, characters typed by the user are echoed back to the terminal. This means that when you type something, you can see what you are typing.
+    // ICANON: When set, the terminal is in canonical mode. In this mode, input is processed line by line. This means that input is only made available to the program after the user presses the Enter key.
     
     new_term.c_lflag &= ~(ECHO | ICANON);
     if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) != 0) { // set new terminal attributes
@@ -94,7 +97,7 @@ void get_password(char *password, int max_len) {
     printf("\n"); // print newline after password input
 
     // Restore terminal attributes
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &old_term) != 0) {
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &old_term) != 0) { //STDIN_FILENO is a constant defined in unistd.h that represents the file descriptor for standard input (stdin)
         perror("tcsetattr"); // print error message if tcsetattr fails
         exit(EXIT_FAILURE); // exit program with failure status
     }
@@ -118,6 +121,8 @@ int authenticate() {
             int attempts = 0; // number of attempts
             while (attempts < MAX_ATTEMPTS) {
                 if (admin_login()) { // check if admin login is successful
+                    sleep(2); // Add a delay of 2 seconds before clearing the screen
+                    system("clear"); // Clear screen after successful login
                     return 1; // return 1 if admin login is successful
                 }
                 attempts++; // increment attempts
@@ -144,6 +149,8 @@ int authenticate() {
                 int attempts = 0; // number of attempts
                 while (attempts < MAX_ATTEMPTS) {
                     if (client_login()) { // check if client login is successful
+                        sleep(2); // Add a delay of 2 seconds before clearing the screen
+                        system("clear"); // Clear screen after successful login
                         return 2;
                     }
                     attempts++; // increment attempts
