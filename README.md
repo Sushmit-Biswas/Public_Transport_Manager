@@ -4,12 +4,12 @@ Welcome to the Public Transport Route and Schedule Management System! This proje
 
 ## 📋 Table of Contents
 
-- [Getting Started](#getting-started)
-- [Compiling and Running](#compiling-and-running)
-- [Features](#features)
-- [Team Members](#team-members)
-- [Contributing](#contributing)
-- [License](#license)
+1. [Getting Started](#getting-started)
+2. [Compiling and Running](#compiling-and-running)
+3. [Features](#features)
+4. [Team Members](#team-members)
+5. [Contributing](#contributing)
+6. [License](#license)
 
 ## 🏁 Getting Started
 
